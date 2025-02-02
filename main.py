@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from students_data import student
 
 
 app = FastAPI()
@@ -106,8 +107,6 @@ marks = [
     {"name": "n", "marks": 47},
     {"name": "eys2B", "marks": 85},
 ]
-
-
 origins = ["*"]
 
 app.add_middleware(
@@ -133,3 +132,24 @@ async def get_names(request: Request):
             if entry["name"] == name:
                 mark.append(entry["marks"])
     return {"marks": mark}
+
+
+@app.get("/api2")
+async def get_names(request: Request):
+    result = {"students": []}
+
+    if request.url.query == "":
+        for stu in student:
+            result["students"].append(stu)
+
+        return result
+
+    result = {"students": []}
+
+    query_string = str(request.url.query).split("&")
+    for query in query_string:
+        class_name = query.split("=")[1]
+        for entry in student:
+            if entry["class"] == class_name:
+                result["students"].append(class_name)
+    return result
