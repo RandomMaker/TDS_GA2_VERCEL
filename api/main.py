@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+import uvicorn
+from typing import List
 
 app = FastAPI()
 
@@ -108,4 +110,20 @@ marks = [
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return "Hello"
+
+
+@app.get("/api")
+async def get_names(request: Request):
+    query_string = str(request.url.query).split("&")
+    mark = []
+    for query in query_string:
+        name = query.split("=")[1]
+        for entry in marks:
+            if entry["name"] == name:
+                mark.append(entry["marks"])
+    return {"marks": mark}
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
