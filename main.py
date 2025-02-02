@@ -147,9 +147,10 @@ async def get_names(request: Request):
     result = {"students": []}
 
     query_string = str(request.url.query).split("&")
+    classes = []
     for query in query_string:
-        class_name = query.split("=")[1]
-        for entry in student:
-            if entry["class"] == class_name:
-                result["students"].append(entry)
+        classes.append(query.split("=")[1])
+    for entry in student:
+        if entry["class"] in classes:
+            result["students"].append(entry)
     return result
