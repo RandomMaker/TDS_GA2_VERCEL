@@ -151,5 +151,5 @@ async def get_names(request: Request):
         class_name = query.split("=")[1]
         for entry in student:
             if entry["class"] == class_name:
-                result["students"].append(class_name)
+                result["students"].append(entry)
     return result
