@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
@@ -104,6 +106,16 @@ marks = [
     {"name": "n", "marks": 47},
     {"name": "eys2B", "marks": 85},
 ]
+
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
