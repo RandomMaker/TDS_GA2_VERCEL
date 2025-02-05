@@ -186,7 +186,7 @@ async def get_similar_docs(request: Request, request_body: Dict):
         }
         data = {"model": "text-embedding-3-small", "input": input_texts}
         embeddings_response = requests.post(
-            "https://airoxy.sanand.workers.dev/openai/v1/embeddings",
+            "https://aiproxy.sanand.workers.dev/openai/v1/embeddings",
             headers=headers,
             json=data,
         )
