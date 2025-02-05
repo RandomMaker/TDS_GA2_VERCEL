@@ -1,9 +1,14 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from students_data import student
+from typing import Dict, List
+import numpy as np
+import requests
 
 
 app = FastAPI()
+
+AIPROXY_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6IjIzZjIwMDI2MzVAZHMuc3R1ZHkuaWl0bS5hYy5pbiJ9.gUohb1yh4JYgWzv_JqpPXpXiRRELwbRgnvolbpVX3DI"
 
 marks = [
     {"name": "Vr", "marks": 12},
@@ -117,6 +122,12 @@ app.add_middleware(
 )
 
 
+def cosine_similarity(a, b):
+    norm_a = np.linalg.norm(a)
+    norm_b = np.linalg.norm(b)
+    return 0.0 if norm_a == 0 or norm_b == 0 else np.dot(a, b) / (norm_a * norm_b)
+
+
 @app.get("/")
 async def root():
     return "Hello"
@@ -154,3 +165,41 @@ async def get_names(request: Request):
         if entry["class"] in classes:
             result["students"].append(entry)
     return result
+
+
+@app.post("/similarity")
+async def get_similar_docs(request: Request, request_body: Dict):
+    try:
+        docs: List[str] = request_body.get("docs")
+        query: str = request_body.get("query")
+
+        if not docs or not query:
+            raise HTTPException(
+                status_code=400, detail="Missing 'docs' or 'query' in request body"
+            )
+
+        input_texts = [query] + docs
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorizatioin": f"Bearer {AIPROXY_TOKEN}",
+        }
+        data = {"model": "text-embedding-3-small", "input": input_texts}
+        embeddings_response = requests.post(
+            "https://airoxy.sanand.workers.dev/openai/v1/embeddings",
+            headers=headers,
+            json=data,
+        )
+        embeddings_response.raise_for_status()
+        embeddings_data = embeddings_response.json()
+        query_embedding = embeddings_data["data"][0]["embedding"]
+        doc_embedding = [emb["embedding"] for emb in embeddings_data["data"][1:]]
+        similarities = [
+            (i, cosine_similarity(query_embedding, doc_embedding[i]), docs[i])
+            for i in range(len(docs))
+        ]
+        ranked_docs = sorted(similarities, keys=lambda x: x[1], reverse=True)
+        top_matches = [doc for _, _, doc in ranked_docs[: min(3, len(ranked_docs))]]
+        return {"matches": top_matches}
+    except:
+        pass
