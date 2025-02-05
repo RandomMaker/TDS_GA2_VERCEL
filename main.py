@@ -201,5 +201,9 @@ async def get_similar_docs(request: Request, request_body: Dict):
         ranked_docs = sorted(similarities, keys=lambda x: x[1], reverse=True)
         top_matches = [doc for _, _, doc in ranked_docs[: min(3, len(ranked_docs))]]
         return {"matches": top_matches}
-    except:
-        pass
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error communicating with AI Proxy: {e}"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occured: {e}")
