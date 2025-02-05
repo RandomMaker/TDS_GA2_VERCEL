@@ -250,7 +250,7 @@ async def execute_query(q: str):
 
         # Meeting scheduling pattern
         if re.search(
-            r"schedule.?\d{4}-\d{2}-\d{2}.?\d{2}:\d{2}.*?room", query, re.IGNORECASE
+            r"book.?\d{4}-\d{2}-\d{2}.?\d{2}:\d{2}.*?room", query, re.IGNORECASE
         ):
             date_match = re.search(r"(\d{4}-\d{2}-\d{2})", query)
             time_match = re.search(r"(\d{2}:\d{2})", query)
