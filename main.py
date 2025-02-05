@@ -198,7 +198,7 @@ async def get_similar_docs(request: Request, request_body: Dict):
             (i, cosine_similarity(query_embedding, doc_embedding[i]), docs[i])
             for i in range(len(docs))
         ]
-        ranked_docs = sorted(similarities, keys=lambda x: x[1], reverse=True)
+        ranked_docs = sorted(similarities, key=lambda x: x[1], reverse=True)
         top_matches = [doc for _, _, doc in ranked_docs[: min(3, len(ranked_docs))]]
         return {"matches": top_matches}
     except requests.exceptions.RequestException as e:
