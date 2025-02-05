@@ -182,7 +182,7 @@ async def get_similar_docs(request: Request, request_body: Dict):
 
         headers = {
             "Content-Type": "application/json",
-            "Authorizatioin": f"Bearer {AIPROXY_TOKEN}",
+            "Authorization": f"Bearer {AIPROXY_TOKEN}",
         }
         data = {"model": "text-embedding-3-small", "input": input_texts}
         embeddings_response = requests.post(
